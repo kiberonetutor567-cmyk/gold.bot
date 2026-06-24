@@ -971,6 +971,17 @@ async def handle_webapp_data(message: Message, state: FSMContext):
     init_data = payload.get("init_data", "")
     if not verify_webapp_init_data(init_data, BOT_TOKEN):
         logger.warning(f"Webapp init_data verification failed for user {message.from_user.id}")
+        # ВРЕМЕННАЯ ДИАГНОСТИКА: шлём админу сырой init_data, чтобы понять причину.
+        # Удалить этот блок после того, как проблема будет найдена!
+        try:
+            await bot.send_message(
+                chat_id=ADMIN_ID,
+                text=f"🔧 DEBUG init_data verification failed:\n\n"
+                     f"raw init_data (len={len(init_data)}):\n<code>{init_data or '(empty)'}</code>",
+                parse_mode="HTML"
+            )
+        except Exception as e:
+            logger.error(f"Debug send failed: {e}")
         await message.answer("⚠️ Не удалось подтвердить подлинность запроса. Попробуй заново открыть терминал.")
         return
  
